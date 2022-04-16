@@ -1,0 +1,79 @@
+#Preparation#
+---
+#Install CentOS
+Download centos mininal iso, install it on vm, ssh into it using putty.
+#Install docker
+Just google install docker on centos and follow the steps
+#Also add docker to systemctl to start automatically
+sudo systemctl enable docker
+sudo systemctl start docker
+#Once installed you have to give regular user access to docker group
+sudo usermod -aG docker user
+#after adding user to docker group, log out and check the permission, this command also lists the containers you have run by docker
+docker ps
+#Install docker-compose, use google for this one too
+Yep, google it :)
+#Make docker-compose executable, when installing docker-compose you specify the location, use that.
+sudo chmod +x /usr/local/bin/docker-compose
+#Check if it runs 
+docker-compose
+
+#Install Jenkins#
+---
+#Install jenkins using docker
+docker pull jenkins/jenkins:lts
+#check the installed image
+docker images
+#check location, where docker saves the files
+docker info | grep -i root
+
+#Run Jenkins#
+---
+#Create docker-compose.yml file with this config
+version: '3'
+services:
+  jenkins:
+     container_name: jenkins
+     image: jenkins/jenkins
+     ports:
+       - "8080:8080"
+     volumes:
+       - "$PWD/jenkins_home:/var/jenkins_home"
+     networks:
+       - net
+networks:
+  net:
+#then run docker-compose to up the service
+docker-compose up -d
+#another way to run jenkins
+docker run -d --name=jenkins -p 8080:8080 -p 50000:50000 -v ~/jenkins:/var/jenkins_home jenkins
+#check the container
+docker ps
+#check the logs and find admin password
+docker logs -f jenkins
+#openup the browser and enter the server ip with :8080 port
+serverip:8080
+#You can build specific image using 
+docker-compose build
+#You can connect to mysql database using this command
+mysql -u root -p #and then enter the password for the root user which you have set during mysql installation
+#You can connect to remote mysql database using this command
+mysql -u root -h :hostname: -p #you specify the host you want to connect and then enter the root user password
+
+#MYSQL#
+#list databases
+show databases;
+#Create new database
+create database databasename;
+#Switch to this database so you can add data
+use databasename;
+#Create table into this database;
+create table info (name varchar(20), lastname varchar(20), age int(2));
+#List the database tables
+show tables;
+#Get detailed info about the table
+describe info;
+#Add data/values to the table
+insert into info values ('Sandro', 'Makhatadze', '27');
+#read that data
+select * from info;

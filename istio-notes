@@ -1,0 +1,187 @@
+#To avoid cascading failure of the service, we need to implement circuit break on each microservice
+#Dump istio profile yamls
+istioctl profile dump :profilename:
+#Generate manifests using istioctl
+istioctl manifest generate -f filename of the profile dump
+---
+#LoadBalancerSettings
+#Load balancing policies to apply for a specific destination. See Envoy’s load balancing documentation for more details.
+https://www.envoyproxy.io/docs/envoy/latest/intro/arch_overview/upstream/load_balancing/load_balancing
+#For example, the following rule uses a round robin load balancing policy for all traffic going to the ratings service.
+
+apiVersion: networking.istio.io/v1alpha3
+kind: DestinationRule
+metadata:
+  name: bookinfo-ratings
+spec:
+  host: ratings.prod.svc.cluster.local
+  trafficPolicy:
+    loadBalancer:
+      simple: ROUND_ROBIN
+
+#The following example sets up sticky sessions for the ratings service hashing-based load balancer for the same ratings service using the the User cookie as the hash key.
+
+ apiVersion: networking.istio.io/v1alpha3
+ kind: DestinationRule
+ metadata:
+   name: bookinfo-ratings
+ spec:
+   host: ratings.prod.svc.cluster.local
+   trafficPolicy:
+     loadBalancer:
+       consistentHash:
+         httpCookie:
+           name: user
+           ttl: 0s
+
+####
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  name: sample-virtual-service
+spec:
+  gateways:
+    - default
+  hosts:
+    - sample-host
+  http:
+    - match:
+        - headers:
+            Cookie:
+              regex: .*userAffinity=v1.*
+      route:
+        - destination:
+            host: sample-host.svc.cluster.local
+            port:
+              number: 80
+            subset: v1
+    - match:
+        - headers:
+            Cookie:
+              regex: .*userAffinity=v2.*
+      route:
+        - destination:
+            host: sample-host.svc.cluster.local
+            port:
+              number: 80
+            subset: v2
+    - route:
+        - destination:
+            host: sample-host.svc.cluster.local
+            port:
+              number: 80
+            subset: v1
+          weight: 75
+        - destination:
+            host: sample-host.svc.cluster.local
+            port:
+              number: 80
+            subset: v2
+          headers:
+            response:
+              add:
+                Set-Cookie: userAffinity=v2; Max-Age=3600000
+          weight: 25
+---
+apiVersion: networking.istio.io/v1beta1
+kind: DestinationRule
+metadata:
+  name: sample-destination-rule
+spec:
+  host: sample-host.svc.cluster.local
+  subsets:
+    - labels:
+        app: sample-app-v1
+      name: v1
+      trafficPolicy:
+        loadBalancer:
+          consistentHash:
+            httpCookie:
+              name: userAffinity=v1
+              ttl: 1h
+    - labels:
+        app: sample-app-v2
+      name: v2
+
+###
+
+apiVersion: networking.istio.io/v1alpha3
+kind: Gateway
+metadata:
+  name: sample-service-gateway
+spec:
+  selector:
+    istio: ingressgateway # use istio default controller
+  servers:
+    - port:
+        number: 80
+        name: http
+        protocol: HTTP
+      hosts:
+        - "*"
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: sample-service-gateway-vs
+spec:
+  hosts:
+    - "*"
+  gateways:
+    - sample-service-gateway
+  http:
+    - match:
+        - headers:
+            Cookie:
+              exact: sample-service-version=v1
+      route:
+        - destination:
+            host: sample-service
+            subset: v1
+            port:
+              number: 8080
+    - match:
+        - headers:
+            Cookie:
+              exact: sample-service-version=v2
+      route:
+        - destination:
+            host: sample-service
+            subset: v2
+            port:
+              number: 8080
+    - route:
+        - destination:
+            host: sample-service
+            subset: v1
+            port:
+              number: 8080
+          weight: 50
+          headers:
+            response:
+              add:
+                "Set-Cookie": sample-service-version=v1; Max-Age=2592000
+        - destination:
+            host: sample-service
+            subset: v2
+            port:
+              number: 8080
+          weight: 50
+          headers:
+            response:
+              add:
+                "Set-Cookie": sample-service-version=v2; Max-Age=2592000
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: DestinationRule
+metadata:
+  name: sample-service
+spec:
+  host: sample-service
+  subsets:
+    - name: v1
+      labels:
+        version: v1
+    - name: v2
+      labels:
+        version: v2

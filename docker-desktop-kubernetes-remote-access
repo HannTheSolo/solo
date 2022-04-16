@@ -1,0 +1,4 @@
+#check for ip listening on 6443 port
+netstat -na | grep 6443
+#proxy this port to local ipv4 network
+netsh interface portproxy add v4tov4 listenaddress=192.168.88.172 listenport=6443 connectaddress=127.0.0.1 connectport=6443

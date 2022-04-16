@@ -1,0 +1,48 @@
+#Pull the image from repository
+docker pull repo.hq.domain:9333/repo/location/path/here
+
+#Run the image temporarily ??? No idea. This command returns hash for this image.
+#like uniq name for this image so you can exec into it. fe : ce67972ees21324a9d0 etc
+docker run -d repo.hq.domain:9333/repo/location/path/here
+
+#Log into this container image 
+dokcer exec -it ce67 bash
+
+#After this step, you need to locate where the certs are.
+cd /usr/share/local/ca-certificates/
+
+#Then you have to copy new certificates into tmp path
+/tmp/tmp_certs
+
+#After this create Dockerfile into this dir, where the script will be
+touch Dockerfile
+
+FROM mcr.microsoft.com/dotnet/coree/aspnet:3.1.20-buster-slim
+COPY tmp_certs/* /usr/local/share/ca-certificates/
+RUN update-ca-certificates
+
+#Kill previous docker image
+docker kill ce67
+
+#Remove the image
+docker remove ce67
+
+#cd into tmp_certs dir and run this command to build new image with the certs, hey dont forget the dot, THE DOT .
+#typically you have to run last step from server, or buildserver which has intenet connection, so it can pull image from microsoft repo and build locally.
+docker build -t repo.hq.domain:9333/repo/location/path/here(put new image link here dotnet/coree/aspnet:3.1.20-buster-slim) .
+
+
+#After building the image, login to repo
+docker login repo.hq.domain:9333
+
+#Then push new image into repo
+docker push repo.hq.domain:9333/repo/location/path/here(put new image link here dotnet/coree/aspnet:3.1.20-buster-slim)
+
+#After this you can repeate the previous steps, run rocker image, exec iinto it and check the certs location
+docker run -d repo.hq.domain:9333/repo/location/path/here(put new image link here dotnet/coree/aspnet:3.1.20-buster-slim)
+
+#Login into image with the new tag
+docker exec -it b7b
+
+#I guess woala, you are done. But you might get stuck somewhere, no big deal. figure it out.
+

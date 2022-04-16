@@ -1,0 +1,70 @@
+#GENERAL Overview of VPC Components#
+Virtual Private Cloud (VPC) = A logically isolated virtual network in the AWS Cloud
+#
+Subnet = A segment of a VPCs IP address range hwere you can place groups of isolated resources
+#
+Internet Gateway/Egress only Internet Gateway = The amazon VPC side of a connection to the public internet for IPv4/IPv6
+#
+Router = Routers interconnect subnets and direct traffic between Internet gateways, virtual private gateways, NAT gateways and subnets
+#
+Peering Connection = Direct connection between two VPCs
+#
+VPC Endpoint = Private connection to public AWS services
+#
+NAT Instance = Enables Internet access for ec2 instances in private subnets managed by you
+#
+NAT Gateway = Enables Internet access for ec2 instances in private subnets managed by aws
+#
+Virtual Private Gateway = The Amazon VPC side of a Virtual Private Network connection
+#
+Customer Gateway = Customer side of a VPN connection
+#
+AWS Direct Connect = High speed, high bandwidth , private network connection from customer to aws
+#
+Security Group = instance-level firewall
+#
+Network ACL = subnet-level firewall
+#
+Elastic IPs = ???
+#
+Endpoint Services = ???
+###
+
+#When first creating VPC, CIDR block cannot be modified.
+#The first four and last IP address are not available for use
+#Recommended CIDR blocks to use from RFC 1918 ranges :
+10.0.0.0 - 10.255.255.255 (10/8 prefix) - 10.0.0.0/16
+172.16.0.0 - 172.31.255.255 (172.16/12 prefix) - 172.31.0.0/16
+192.168.0.0 - 192.168.255.255 (192.168/16 prefix) - 192.168.0.0/20 
+
+###
+#Security Groups and ACLs
+Network ACLs = they apply at the subnet level
+Network ACLs are Stateless firewalls
+    Stateless firewall checks for an allow rule for both connection(inbound and outbound)
+
+#
+Security Groups = they apply at the instance level, interface. they can be applied to instances in any subnet
+Security Groups are Stateful firewalls
+    Stateful firewall allows the return traffic automatically
+        for example : you have web server running on 80 port in your environment.
+        and you want to allow connections to it from the internet, you have to apply following rule to the firewall
+        Protocol: HTTP; SourceIP: any; DestinationIP: 10.10.3.15; SourcePort: any; DestinationPort: 80;
+        This rule will allow inbound requests to the web server running on 80 port, but you dont have to create outbound firewall rule,
+        firewall will automatically allow return traffic to reach the destination.
+Security group doesnt need deny rule, if there is no allow rule for the traffic, it will be denied by default.
+
+###
+#VPC Endpoints
+VPC Endpoints = these are used to connect from private subnet to external s3 bucket or such service, without going out to the internet.
+                there are two types of VPC Endpoints, Interface Endpoint and Gateway Endpoint
+
+Interface Endpoint = You get Elastic Network Interface with a Private IP
+                     IE uses DNS entries to redirect traffic
+                     With IE you can use such services like API Gateway, CloudFormation, Cloudwatch and etc.
+                     With IE you use Security Groups to controll traffic
+
+Gateway Endpoint = A gateway that is a target for a specific route
+                   GE uses prefix lists in the route table to redirect traffic
+                   With GE you are limited to Amazon S3 and DynamoDB services
+                   With GE you use VPC Endpoint Policies to controll traffic

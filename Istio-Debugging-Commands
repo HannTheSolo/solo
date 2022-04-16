@@ -1,0 +1,35 @@
+#Istio Debugging commands#
+#must-gather get all the configuration about your istio mesh and sidecars, virtual services and destination rules
+oc adm must-gather --image=registry.redhat.io/openshift-service-mesh/istio-must-gather-rhel8
+#to inspec namespace
+oc adm inspect ns/project-name
+
+#turn debug leven for istio-sidecar proxy
+istioctl proxy-config log :podname:.:namespace: --level=debug
+
+#Check certificate status
+istioctl authn tls-check podname.namespace.svc.cluster.local
+
+#Gather stats for ingress gateway and sidecar proxy
+oc exec -it istio-ingressgateway -n servicemesh -- curl -s localhost:15000/stats >  stats_istio-ingressgateway.log
+oc exec -it :podname: -c istio-proxy -n :namespace: -- curl -s localhost:15000/stats >  stats_:podname:.log
+
+#Collect all logs from Istiod, ingressgateway and sidecar proxy
+oc logs istiod -n servicemesh > istiod.log
+oc logs ingressgateway -n servicemesh > ingressgateway.log
+oc logs :podname: -n :namespace: -c istio-proxy > sidecar.log
+
+#Check health from sidecar
+oc exec -it :podname: -c istio-proxy -n :namespace: -- curl -svI localhost:8080/health
+
+#Check endpoints 
+istioctl proxy-config endpoint istio-ingressgateway.servicemesh |grep cashin
+
+#Check proxy sync status for namespaces
+istioctl proxy-status -i namespace
+
+#
+oc get gateway,virtualservice -n :namespace:
+
+#rotational log location on worker nodes
+/var/log/pods/<pod name>/<container name>/

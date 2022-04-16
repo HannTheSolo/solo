@@ -1,0 +1,12 @@
+#MONITORING#
+#NBO API 
+http_requests_received_total{action="GetOffers",container="containername",controller="Offers"}
+
+#Resource Quota
+kube_resourcequota{namespace="appname-test",type="used"}
+#this will count resource quota usage for CPU, if it reaches 80% alert will be sent.
+sum(abs(kube_resourcequota{namespace="appname-test",resource="limits.cpu",type="used"})) / sum(abs(kube_resourcequota{namespace="appname-test",resource="limits.cpu",type="hard"})) > 0.8
+#
+(sum(increase(http_request_duration_seconds_count{code=~"^5..$"}[10m]))/sum(increase(http_request_duration_seconds_count[10m]))*100)
+#this will send pod status for every container in the namespace that starts with appname
+kube_pod_container_status_ready{container=~"appname-.+",namespace=""} 

@@ -1,0 +1,28 @@
+#Certificates#
+
+#Run the following command to export the private key
+openssl pkcs12 -in certname.pfx -nocerts -nodes -out key.pem 
+
+#Run the following command to export the certificate public key
+openssl pkcs12 -in certname.pfx -nokeys -out cert.pem
+
+#to extract CA certificate from pfx:
+openssl pkcs12 -in /path/to/certificate.pfx -cacerts -nokeys -chain | openssl x509 -out /path/to/cacert.crt
+
+#to convert certificate cer to pem:
+openssl x509 -in /path/to/cacert.crt -out /path/to/cacert.pem -outform PEM
+
+#to export crt file from pfx: 
+openssl pkcs12 -in /path/to/certificate.pfx -clcerts -nokeys -out /path/to/certificate.crt
+
+#to export key file from pfx: 
+openssl pkcs12 -in /path/to/certificate.pfx -nocerts -out /path/to/certificate.key
+
+#to create decrypted key file: 
+openssl rsa -in /path/to/certificate.key -out /path/to/certificate-decrypted.key
+
+#Run the following command to remove the passphrase from the private key
+openssl rsa -in key.pem -out server.key
+
+#Inspect certificate 
+openssl pkcs12 -info -in INFILE.p12 -nodes

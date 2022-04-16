@@ -1,0 +1,75 @@
+## TF FUNCTIONS ##
+#read a file
+file("filename-with-path-to-it")
+#read the length of the string
+length()
+#convert list to set to use for_each function
+toset()
+#split string to list
+split(",", "what-the,actual-FUNK,not-again,please")
+#split string to list using variable
+variable "falcon"{
+    type = string
+    default = "what-the,actual-FUNK,not-again,please"
+    description = "meh"
+} #this is refference of variable and next is split function.
+split(",", var.falcon)
+#lower all letters in the string
+lower(var.falcon)
+#do the opposite
+upper(var.falcon)
+#try these out using terraform console and you will figure it out
+title(var.falcon)
+substr(var.falcon, 0, 8)
+
+
+## TF STATE COMMANDS ##
+#basic commands
+terraform state <subcommand>
+terraform state list, mv, pull, rm, show
+
+## COMMANDS ##
+#validate tf file configuration
+terraform validate
+#format tf configuration files for better visibility
+terraform fmt 
+#display current state of infra 
+terraform show
+#display specific resource state
+terraform state show local_file.file
+#also you can list content in json format
+terraform show -json
+#list all providers
+terraform providers
+#copy provider content to another directory
+terraform providers mirror /root/dirname/orwhateverplace
+#print variable outputs
+terraform output
+#print specific variable output
+terraform output variablename
+#sync tf to real-world infra, in case there was a manual update. This command will modify state file
+terraform refresh
+#visually display dependencies
+terraform graph
+#preferably use graph command with graphviz, install it on ubuntu with apt install graphviz -y
+terraform graph | dot -Tsvg > graph.svg #after generating svg file, you can open it with the browser
+
+## LIFECYCLE RULES ##
+#put lifecycle block in resource you want to specify the rule, this rule creates resource before destroying it
+lifecycle {
+    create_before_destroy = true
+}
+#if we do not want to destroy the resource at all, use this
+lifecycle {
+    prevent_destroy = true
+}
+#ignoring changes on specific arguments
+lifecycle {
+    ignore_changes = [
+        tags,any other argument
+    ]
+}
+#ignoring changes for all
+lifecycle {
+    ignore_changes = all
+}

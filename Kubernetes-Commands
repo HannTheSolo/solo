@@ -1,0 +1,61 @@
+#Kubernetes#
+
+#Rolling restart of all pods in namespace
+kubectl rollout restart deploy
+
+#ETCD#
+#check status of etcd databases
+oc get pods -n openshift-etcd | grep etcd
+oc rsh -n openshift-etcd :etcdpodname: etcdctl endpoint status --cluster -w table
+
+#Etcd Defragmentation#
+#note that, DB Size must be 50-40% more than dbSizeInUse
+oc rsh -n openshift-etcd :etcdpodname: etcdctl endpoint status --cluster -w json
+#log into etcd pod
+oc rsh -n openshift-etcd :etcdpodname:
+#Unset the ETCDCTL_ENDPOINTS environment variable:
+unset ETCDCTL_ENDPOINTS
+#Defragment the etcd member
+etcdctl --command-timeout=30s --endpoints=https://localhost:2379 defrag
+#Check if there are any NOSPACE alarms:
+etcdctl alarm list
+#Clear the alarms:
+etcdctl alarm disarm
+
+
+#Get token
+kubectl sa get-token :serviceaccountname:
+#Run this command to check logs of services
+journalctl -xe
+#Run docker image and specify secrets location
+docker run --mount type=bind,source="/home/user/app_secret_dir/",target=/vault/secrets --entrypoint /bin/bash -it :imageaddress/name:
+#For deeper details, you can generate a complete dump of the cluster state to a directory
+kubectl cluster-info dump --all-namespaces --output-directory=cluster-state --output=json
+#Show me all the container images names in the kube-system namespace
+jq '.items[].status.containerStatuses[].image' cluster-state/kube-system/pods.json
+#Show me when all the container images were started in the default namespace
+jq '.items[].status.containerStatuses[] | [.image, .state[].startedAt]' cluster-state/default/pods.json
+#Scale Deployments up or down
+kubectl scale deployment/random-logger --replicas=2
+#Restart specific container in a Pod
+kubectl exec -it :podname: -c :containername: -- /bin/sh -c "kill 1"
+#Get container names from pod
+kubectl get pods :podname: -o=custom-columns=NAME:.metadata.name,CONTAINERS:.spec.containers[*].name -n :namespace:
+#
+kubectl get events --sort-by=.metadata.creationTimestamp
+---
+#Helm#
+#list deployments
+helm list
+#list deployments by realease name
+helm history release_name
+#rollback to older version
+helm rollback release_name revision_flag
+helm rollback rdbs-prod 10
+#delete deployment
+helm uninstall release_name
+
+#ISTIO TROUBLESHOOTING#
+#Check proxy status 
+istioctl proxy-status -i 
+#You can check proxy configuration

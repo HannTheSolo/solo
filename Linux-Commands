@@ -1,0 +1,75 @@
+#Linux#
+
+#Quick loop of curl request
+while true; do curl http://yourlink.com:8080/api/v1/getCustomers%20ID; echo; sleep 0.5; done
+#Check free space on the machine
+sudo df -h
+#List disk usage of the folders and sort them
+sudo du -sh * | sort -hr
+#Give new user sudo permissions
+usermod -aG sudo user
+---
+#Symlink#
+#If you try to create a symbolic link that already exists , the ln command will print an error message.
+ln -s my_file.txt my_link.txt
+#To overwrite the destination path of the symlink, use the -f (--force) option.
+ln -sf my_file.txt my_link.txt
+#To delete/remove symbolic links use either the unlink or rm command.
+unlink symlink_to_remove
+rm symlink_to_remove
+#To verify that the symlink was successfully created, use the ls command:
+ls -l my_link.txt
+---
+#delete line after space 
+ctrl+K
+#delete line before space
+ctrl+U
+#bring back the deleted line
+ctrl+Y
+#kill word by word
+ctrl+W
+---
+#VIM#
+
+#to delete whole line
+dd
+#To delete set of lines
+d10d - will delete 10 lines, you just ttype the number you want and it will delete that amount of lines
+#To undo deletion
+u
+#Jump to end of the line with insert
+Shift+a (A) 
+#Jump to end of the line without insert
+$
+#Jump to beginning of the line
+0
+#Jump to specific line, type the number of the line and hit capital G
+121G
+#search , next search is n , previous search is N
+/
+#Replace string text from nginx to web-app
+:%s/nginx/web-app
+---
+#to check which ports are listened on the host
+netstat -ntlp
+#to use curl verbously and with telnet
+curl -v telnet://hostname.com:9000
+curl -v
+#user curl to send http to api with authorization
+curl -u user:pwd -X GET 'http://192.168.88.140:8081/service/rest/v1/respositories'
+#list directory contents
+ls -R /usr/local/share
+---
+#Generate ssh key, you can to not to specify -b 4096 arg, it just increases the size of key
+ssh-keygen -t rsa -b 4096
+#Also you can generate ssh keys with specific file name. This command will put files in the current directory you are.
+ssh-keygen -t rsa -f filename
+#When sshing to remote host, you can tell ssh command to use specific ssh.key
+ssh -i sshkeyname remote_user@remote_host
+#copy public key to server
+scp .ssh/id_rsa.pub user@10.1.1.10:/home/user
+---
+#better trace route
+mtr --curses 8.8.8.8
+#bring back previous command argument
+alt+.

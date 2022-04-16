@@ -1,0 +1,230 @@
+#Linux Part#
+
+#bin Directory is used for binary files, which mostly are linux basic commands, such as :
+ls, cat, cd, echo
+#sbin Directory is used for system kind binary files, these files are still commands, but system wide. These commands require root permission, that's why they are in sBin dir.
+adduser, chmod, chuser, chpasswd
+#lib Directory is for programs, they put their executable files into this dir.
+any kind of program
+#usr/local is place where 3rd party programs are installed
+
+#Some programs, whcih do not split their installation package, will install in opt directory
+opt/
+#etc/ is directory where system configuration is kept. Also for applications, sql, python and etc.
+---
+#VIM#
+
+#to delete whole line
+dd
+#To delete set of lines
+d10d - will delete 10 lines, you just ttype the number you want and it will delete that amount of lines
+#To undo deletion
+u
+#Jump to end of the line with insert
+Shift+a (A) 
+#Jump to end of the line without insert
+$
+#Jump to beginning of the line
+0
+#Jump to specific line, type the number of the line and hit capital G
+121G
+#search , next search is n , previous search is N
+/
+#Replace string text from nginx to web-app
+:%s/nginx/web-app
+
+---
+#user permissions for file easy
+sudo chmod u,g,o -+ rwx filename.txt
+#user multiple permissions for file easy
+sudo chmod u=rw- filename.txt
+
+---
+#GIT#
+#git global setup
+git config --global user.name "yourname"
+git config --global user.email "youremail"
+#List configs
+git config --global --list
+git config --local --list
+#History
+git log
+#Apply changed files
+git add
+#Add remote repo address using SSH keys
+git remote add origin git@github.com:HannTheSolo/test.git
+#Set the branch
+git branch -M master
+#Push to master
+git push -u origin master
+#Change branch
+git checkout bugfix/user-auth-errot
+#Create new branch based on master, this will create new branch and move into it.
+git checkout -b feature/newbranch
+#add new branch to repo, also use this command to freshly create master branch, or any other branch aswell.
+git push --set-upstream origin feature/newbranch
+#List branches
+git branch -a
+#Delete branch
+git branch -d branchname
+#When there is merge conflict and you cannot push, first you have to pull again and then push.
+git pull
+git push
+#Other way is to use rebase method, let's say two developers work on same branch and someones commit is ahead of others. this one also works when you edit the same file and there is conflict
+git pull -r
+#When conflict happens, it's usually when two or more ppl edit the same line, in this case, all of you together should decide what to keep and then do 
+git rebase --continue
+#To merge new branch to the master do following.
+git checkout master
+#then do merge to master of the new branch
+git merge branchname
+#Also you can merge master to side branch, to update master branch changes to your side branch
+git checkout yoursidebranch
+git merge master
+#THis command tells gitignore to stop tracking a file, which we excluded in gitignore file
+git rm -r --cached .file/foldername
+#Use git stash when changind branch and you do not want to commit the changes.
+git stash
+#To bring back the changes 
+git stash pop
+#To go back to history, list git log and take the specific hash you want to go back to, by the date. Also you can create new branch from this date
+git checkout hashhere
+#Reset last commit localy, before you push it to the repo. number after tilde represents, how many commits you want to revert
+git reset --hard HEAD~1
+#change last commit if you made a mistake, 
+git reset --soft HEAD~1
+#if you want to add more changes to your last commit before pushing it to the repo, use this. so it doesn't create another commit
+git commit --amend
+#if you want to revert changes to the repo, after you have pushed your commit. ## DO NOT DO THIS ON MASTER/DEVELOP BRANCH, DO IT ON YOUR OWN BRANCH ##
+git reset --hard HEAD~1
+git push --force
+## DO NOT DO THIS ON MASTER/DEVELOP BRANCH, DO IT ON YOUR OWN BRANCH ##
+#Better way to revert changes on master branch, so you want to undo your last commit
+git revert <commit hash>
+
+#Remove commit history without losing the current source code#
+#Checkout
+git checkout --orphan latest_branch
+#Add all the files
+git add -A
+#Commit the changes
+git commit -am "commit message"
+#Delete the branch
+git branch -D master
+#Rename the current branch to master
+git branch -m master
+#Finally, force update your repository
+git push -f origin master
+
+---
+#Package Build Tools & Managers#
+#To build java project using gradle
+./gradlew build
+#Before you do that step, make sure you set your JAVA_HOME env variable to the jdk installation location
+C:\Program Files\Java\jdk-17.0.1
+#To build java project using maven
+mvn install
+#Before you do that, you need to put build configuration into pom.xml file. You specify which plugin to use and etc.
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+                <version>2.3.5.RELEASE</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>repackage</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <!-- to handle any Java version mismatch, add the following configuration for maven-compiler-plugin -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.6.0</version>
+                <configuration>
+                    <source>1.8</source>
+                    <target>1.8</target>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+#WHen you build your java app, you can find .jar file into Build or Target folders. For gradle it's Build, for maven its Target
+#After you have .jar file, you can run these applications
+java -jar /location/to/jar/file
+---
+#Artifact REPO MANAGER#
+#Push gradle jar file to Nexus
+#First you need to add additional info and plugins in build.gradle file
+apply plugin: 'maven-publish'
+
+publishing {
+    publications {
+        maven(MavenPublication) {
+            artifact("build/libs/java-app-$version" + ".jar") {
+                extension 'jar'
+            }
+        }
+    }
+
+    repositories {
+        maven {
+            name 'nexus'
+            url "http://192.168.88.140:8081/repository/maven-snapshots/"
+            allowInsecureProtocol = true #set this option only if you use http connection to the nexus repo
+            credentials{
+                username project.repoUser
+                password project.repoPassword
+            }
+        }
+    }
+}
+#After that, build this project, hope without errors.
+./gradlew build
+#Then publish it to repo
+./gradlew publish
+#to build maven project
+mvn package
+#Upload maven project to nexus repo
+mvn deploy
+#send http request to Nexus repo API
+curl -u user:pwd -X GET 'http://192.168.88.140:8081/service/rest/v1/repositories'
+
+#DOCKER#
+#run docker container with detached mode, expose port, name the container and specify image version
+docker run -d -p 8081:8080 --name :nameofyourchoise: :imagename::versiontag
+#run docker container (-d is for detached mode, so you can continue to work)
+docker run -d
+#lists running ad stopped container
+docker ps -a
+#Basic Docker commands#
+#pull image from repo
+docker pull :image::versiontag
+#pull image and start it
+docker run :image::versiontag
+#start and stop containers
+docker start/stop
+#list all the images
+docker images
+#log into a container
+docker exec -it :containername: /bin/bash
+#get logs of the container
+docker logs 
+#You can list docker networks and check them xD
+docker network ls
+#Also, you can create new network
+docker network create :nameofyourchoise:
+#To push image to repository, first you have to log in
+docker login  
+#Then tag the image
+docker tag yourappname:tag newappname(newtag):tag
+docker tag java-app:1.0 amazonaws.com/java-app:1.0
+#Then push it to repo
+docker push amazonaws.com/java-app:1.0
+#To exec into container as a root user
+docker exec -u 0 -it containername /bin/bash
+##Jenkins##
+#

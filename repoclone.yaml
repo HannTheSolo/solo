@@ -1,0 +1,87 @@
+# Variable 'AZUREPO' was defined in the Variables tab
+# Variable 'BITBUCKETREPO' was defined in the Variables tab
+# Variable 'DestinationRepoUrl' was defined in the Variables tab
+resources:
+  repositories:
+  - repository: self
+    type: git
+    ref: refactoring
+jobs:
+- job: Job_1
+  displayName: Sync job
+  pool:
+    name: Linux
+  steps:
+  - checkout: self
+    persistCredentials: true
+
+  - task: Bash@3
+    displayName: Bash Script
+    inputs:
+      targetType: inline
+      script: >+
+        #!/bin/bash
+
+
+        echo "git remote remove origin ..."
+
+        git -C "$(Build.SourcesDirectory)" remote remove origin
+
+        echo "git remote remove origin ...done"
+
+
+        echo "git remote -v ..."
+
+        git -C "$(Build.SourcesDirectory)" remote -v
+
+        echo "git remote -v ...done"
+
+
+        echo "git remote push --all ..."
+
+        git -c http.extraheader="AUTHORIZATION: bearer $SYSTEM_ACCESSTOKEN" -C "$(Build.SourcesDirectory)" push --all -v "$(DestinationRepoUrl)"
+
+        echo "git remote push --all ...done"
+
+
+        echo "git remote push --tags ..."
+
+        git -c http.extraheader="AUTHORIZATION: bearer $SYSTEM_ACCESSTOKEN" -C "$(Build.SourcesDirectory)" push --tags -v "$(DestinationRepoUrl)"
+
+        echo "git remote push --tags ...done"
+
+...
+
+
+steps:
+- script: |
+   @echo off
+   ECHO SOURCE BRANCH IS %BUILD_SOURCEBRANCH%
+   ECHO GIT CHECKOUT MASTER
+   git checkout master
+   
+   ECHO GIT STATUS
+   git status
+   
+   ECHO setting git user email and name
+   git config --global user.email "Farzad.Jalali@berryworld.com"
+   git config --global user.name "Farzad Jalali"
+   
+   
+   ECHO create a textfile.txt with some content
+   dir > textfile.txt
+   
+   ECHO GIT add . and commit
+   git add .
+   git commit -m "just poc"
+   
+   ECHO GIT STATUS
+   git status
+   
+   ECHO GIT PUSH
+   git push origin
+   
+   ECHO GIT STATUS
+   git status
+  workingDirectory: '$(Build.Repository.LocalPath)'
+  displayName: 'Command Line Script'
