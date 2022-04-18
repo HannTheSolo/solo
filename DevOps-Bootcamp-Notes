@@ -194,6 +194,14 @@ mvn deploy
 curl -u user:pwd -X GET 'http://192.168.88.140:8081/service/rest/v1/repositories'
 
 #DOCKER#
+##Create local docker registry##
+#create local registry
+docker run -d -p 5000:5000 --restart=always --name registry registry:2
+#build image and tag it with registry address
+docker build -t localhost:5000/python-job
+#push it
+docker push localhost:5000/python-job
+---
 #run docker container with detached mode, expose port, name the container and specify image version
 docker run -d -p 8081:8080 --name :nameofyourchoise: :imagename::versiontag
 #run docker container (-d is for detached mode, so you can continue to work)
