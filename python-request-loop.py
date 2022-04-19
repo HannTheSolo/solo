@@ -1,9 +1,17 @@
 import requests
+import sys
+import json
 
-url = 'https://whatever.com'
 headers = {'Content-Type': 'application/json'}
-data = {"name": "whatever", "brandId": "007"}
+url_input = sys.argv[1]
+data_input = sys.argv[2]
+number_input = int(sys.argv[3])
 
-for i in range(100):
-    response = requests.post(url, headers=headers, json=data)
-    print("Status Code", response.status_code)
+
+def url_requests(url, data):
+    for i in range(number_input):
+        response = requests.post(url, headers=headers, json=json.loads(data))
+        print("Status Code", response.status_code)
+
+
+url_requests(url_input, data_input)
