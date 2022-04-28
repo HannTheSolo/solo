@@ -195,6 +195,8 @@ curl -u user:pwd -X GET 'http://192.168.88.140:8081/service/rest/v1/repositories
 
 #DOCKER#
 ##Create local docker registry##
+#check docker image disk usage on local machine
+docker system df
 #create local registry
 docker run -d -p 5000:5000 --restart=always --name registry registry:2
 #build image and tag it with registry address
