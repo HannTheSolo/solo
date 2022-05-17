@@ -19,3 +19,5 @@ $
 /
 #Replace string text from nginx to web-app
 :%s/nginx/web-app
+#Jump by page
+control + f or b
