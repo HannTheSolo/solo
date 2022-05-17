@@ -28,27 +28,7 @@ ctrl+U
 ctrl+Y
 #kill word by word
 ctrl+W
----
-#VIM#
 
-#to delete whole line
-dd
-#To delete set of lines
-d10d - will delete 10 lines, you just ttype the number you want and it will delete that amount of lines
-#To undo deletion
-u
-#Jump to end of the line with insert
-Shift+a (A) 
-#Jump to end of the line without insert
-$
-#Jump to beginning of the line
-0
-#Jump to specific line, type the number of the line and hit capital G
-121G
-#search , next search is n , previous search is N
-/
-#Replace string text from nginx to web-app
-:%s/nginx/web-app
 ---
 #to check which ports are listened on the host
 netstat -ntlp
