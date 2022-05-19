@@ -21,3 +21,11 @@ $
 :%s/nginx/web-app
 #Jump by page
 control + f or b
+#jump forward by a word
+w
+#jump backward by a word
+b
+#delete line after cursor
+shift+d
+shift+c #with the insert after deletion
+

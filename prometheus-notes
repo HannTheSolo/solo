@@ -1,0 +1,10 @@
+## Installation ##
+
+#create ns for prometheus
+kubectl create ns prometheus
+
+#install it from github repo of prometheus
+helm install prometheus prometheus-community/prometheus -n prometheus
+
+#on local env there might be an issue with daemon path, this is the fix.
+kubectl patch ds prometheus-node-exporter --type "json" -p '[{"op": "remove", "path" : "/spec/template/spec/containers/0/volumeMounts/2/mountPropagation"}]' -n prometheus
