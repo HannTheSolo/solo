@@ -1,6 +1,10 @@
 
 #VIM#
 
+#copy whole line
+yy
+#pase whole line
+p
 #to delete whole line
 dd
 #To delete set of lines

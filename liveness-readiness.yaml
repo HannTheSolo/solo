@@ -2,10 +2,10 @@
 initialDelaySeconds: 5
 
 #How often (in seconds) to perform the probe. Default to 10 seconds. Minimum value is 1.
-timeoutSeconds: 2
-
-#Number of seconds after which the probe times out. Defaults to 1 second. Minimum value is 1.
 periodSeconds: 5
+
+#HNumber of seconds after which the probe times out. Defaults to 1 second. Minimum value is 1.
+timeoutSeconds: 2
 
 #Minimum consecutive successes for the probe to be considered successful after having failed. Defaults to 1. Must be 1 for liveness and startup Probes. Minimum value is 1.
 successThreshold: 1
