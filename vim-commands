@@ -39,3 +39,4 @@ dd - Delete (cut) the current line, including the newline character.
 d$ - Delete (cut) everything from the cursor to the end of the line.
 
 To put the yanked or deleted text, move the cursor to the desired location and press p to put (paste) the text after the cursor or P to put (paste) before the cursor.
+v - to enter the visual mode.
